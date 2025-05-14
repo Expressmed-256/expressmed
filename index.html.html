@@ -1,0 +1,215 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaCare Uganda - Sexual Wellness</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .popup { display: none; animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <!-- Navbar -->
+  <nav class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">PharmaCare Uganda</h1>
+      <div class="flex space-x-4 items-center">
+        <a href="#home" class="hover:underline">Home</a>
+        <a href="#products" class="hover:underline">Products</a>
+        <a href="#consultation" class="hover:underline">Consultation</a>
+        <a href="#cart" class="hover:underline">Cart</a>
+        <a href="https://wa.me/256704014613" target="_blank" class="hover:underline">WhatsApp: 0704014613</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="bg-blue-100 py-20 text-center">
+    <div class="container mx-auto">
+      <h2 class="text-4xl font-bold mb-4">Your Trusted Sexual Wellness Store</h2>
+      <p class="text-lg mb-6">Shop discreetly for condoms, lubricants, contraceptives, and more in Uganda.</p>
+      <a href="#products" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Consultation Section -->
+  <section id="consultation" class="py-10 bg-gray-50">
+    <div class="container mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-4">Professional Consultation</h2>
+      <p class="text-lg mb-6">Get expert advice on sexual wellness for only UGX 30,000. Contact us via WhatsApp to book your session.</p>
+      <a href="https://wa.me/256704014613?text=I'd%20like%20to%20book%20a%20consultation" target="_blank" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Book Consultation</a>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="products" class="py-10">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Our Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-4 rounded-lg shadow-md">
+          <img src="https://via.placeholder.com/150" alt="LifeGuard Condoms" class="w-full h-40 object-cover rounded">
+          <h3 class="text-xl font-semibold mt-2">LifeGuard Condoms (12-Pack)</h3>
+          <p class="text-gray-600">High-quality latex condoms for safe intimacy.</p>
+          <p class="text-lg font-bold mt-2">UGX 5,000</p>
+          <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 w-full add-to-cart" data-name="LifeGuard Condoms" data-price="5000">Add to Cart</button>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+          <img src="https://via.placeholder.com/150" alt="Postinor-2" class="w-full h-40 object-cover rounded">
+          <h3 class="text-xl font-semibold mt-2">Postinor-2 Emergency Pill</h3>
+          <p class="text-gray-600">Emergency contraception, effective within 72 hours.</p>
+          <p class="text-lg font-bold mt-2">UGX 10,000</p>
+          <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 w-full add-to-cart" data-name="Postinor-2" data-price="10000">Add to Cart</button>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+          <img src="https://via.placeholder.com/150" alt="Water-Based Lubricant" class="w-full h-40 object-cover rounded">
+          <h3 class="text-xl font-semibold mt-2">Water-Based Lubricant (100ml)</h3>
+          <p class="text-gray-600">Safe and comfortable for all types of intimacy.</p>
+          <p class="text-lg font-bold mt-2">UGX 15,000</p>
+          <button class="bg-blue-600 text-white px-4 py-2 mt-4 rounded hover:bg-blue-700 w-full add-to-cart" data-name="Water-Based Lubricant" data-price="15000">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cart" class="py-10 bg-gray-50">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">Your Cart</h2>
+      <div id="cart-items" class="bg-white p-6 rounded-lg shadow-md">
+        <p class="text-gray-600">Your cart is empty.</p>
+      </div>
+      <div class="flex justify-end mt-6">
+        <button id="checkout-btn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Checkout</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white p-4 text-center">
+    <p>Contact us on WhatsApp: <a href="https://wa.me/256704014613" target="_blank" class="underline">0704014613</a></p>
+    <p>&copy; 2025 PharmaCare Uganda. All rights reserved.</p>
+  </footer>
+
+  <!-- Pop-Up Container -->
+  <div id="popup-container" class="fixed top-4 right-4 z-50"></div>
+
+  <!-- JavaScript for Cart and Pop-Ups -->
+  <script>
+    const cart = [];
+    const cartItems = document.getElementById('cart-items');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const popupContainer = document.getElementById('popup-container');
+
+    // Show Pop-Up
+    function showPopup(message, type = 'success') {
+      const popup = document.createElement('div');
+      popup.className = `popup p-4 rounded-lg shadow-lg mb-2 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white flex justify-between items-center`;
+      popup.innerHTML = `
+        <span>${message}</span>
+        <button class="ml-4 text-white hover:text-gray-200 close-popup">✕</button>
+      `;
+      popupContainer.appendChild(popup);
+      popup.style.display = 'block';
+
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => popup.remove(), 3000);
+
+      // Close on click
+      popup.querySelector('.close-popup').addEventListener('click', () => popup.remove());
+
+      // Close on Esc key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') popup.remove();
+      }, { once: true });
+    }
+
+    // Add to Cart
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      button.addEventListener('click', () => {
+        const name = button.dataset.name;
+        const price = parseInt(button.dataset.price);
+        cart.push({ name, price });
+        updateCart();
+        showPopup(`${name} added to cart!`, 'success');
+      });
+    });
+
+    // Update Cart Display
+    function updateCart() {
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="text-gray-600">Your cart is empty.</p>';
+        return;
+      }
+      cartItems.innerHTML = cart.map(item => `
+        <div class="flex justify-between py-2 border-b">
+          <span>${item.name}</span>
+          <span>UGX ${item.price.toLocaleString()}</span>
+        </div>
+      `).join('');
+      cartItems.innerHTML += `
+        <div class="flex justify-between py-2 font-bold">
+          <span>Total:</span>
+          <span>UGX ${cart.reduce((sum, item) => sum + item.price, 0).toLocaleString()}</span>
+        </div>
+      `;
+    }
+
+    // Checkout
+    checkoutBtn.addEventListener('click', () => {
+      if (cart.length === 0) {
+        showPopup('Your cart is empty!', 'error');
+        return;
+      }
+      showPopup('Checkout successful! Thank you for your purchase.', 'success');
+      cart.length = 0; // Clear cart
+      updateCart();
+    });
+
+    // Promotional Pop-Up on Page Load
+    window.addEventListener('load', () => {
+      showPopup('Book a professional consultation for only UGX 30,000! Contact us on WhatsApp: 0704014613', 'success');
+    });
+  </script>
+</body>
+</html>
